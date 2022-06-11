@@ -1,0 +1,7 @@
+server:
+  port: 8081
+moex:
+  api:
+    shares:
+      url: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
+      defaultCurrency: RUR
