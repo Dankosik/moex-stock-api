@@ -12,5 +12,5 @@ interface MoexClient {
 
     @CollectionFormat(feign.CollectionFormat.CSV)
     @GetMapping("/{ticker}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,TIME")
-    fun getStock(@PathVariable("ticker") ticker: String): Mono<MoexStockResponse>
+    fun getStockByTicker(@PathVariable("ticker") ticker: String): Mono<MoexStockResponse>
 }

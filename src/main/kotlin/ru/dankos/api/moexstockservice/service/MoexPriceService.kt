@@ -25,7 +25,7 @@ class MoexPriceService(
 ) {
 
     suspend fun getStockPriceByTicker(ticker: String): StockPriceResponse {
-        val data = moexClient.getStock(ticker).awaitSingle().marketdata.data
+        val data = moexClient.getStockByTicker(ticker).awaitSingle().marketdata.data
         if (data.isEmpty()) throw StockNotFoundException("Stock not found")
         val response = data.first()
         return StockPriceResponse(
@@ -41,10 +41,10 @@ class MoexPriceService(
     }
 
     fun getStockPriceByTickerAsFlow(ticker: String): Flow<StockPriceResponse> {
-        val stock = moexClient.getStock(ticker)
+        val stock = moexClient.getStockByTicker(ticker)
         return stock
             .delaySubscription(Duration.ofSeconds(2))
-            .repeat { stock != moexClient.getStock(ticker) }
+            .repeat { stock != moexClient.getStockByTicker(ticker) }
             .map { it.marketdata.data.first() }
             .map {
                 StockPriceResponse(
