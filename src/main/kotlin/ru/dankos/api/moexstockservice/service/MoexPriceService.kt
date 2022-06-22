@@ -3,6 +3,9 @@ package ru.dankos.api.moexstockservice.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 import ru.dankos.api.moexstockservice.client.MoexClient
@@ -12,6 +15,8 @@ import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
 import ru.dankos.api.moexstockservice.exception.StockNotFoundException
 import java.math.BigDecimal
+import java.time.Duration
+import java.time.LocalTime
 
 @Service
 class MoexPriceService(
@@ -30,8 +35,32 @@ class MoexPriceService(
                 fractional = response[1].toBigDecimal().subtract(BigDecimal(response[1].toDouble().toInt()))
                     .toPlainString(),
                 currency = moexProperties.api.shares.defaultCurrency
-            )
+            ),
+            time = LocalTime.parse(response[2])
         )
+    }
+
+    fun getStockPriceByTickerAsFlow(ticker: String): Flow<StockPriceResponse> {
+        val stock = moexClient.getStock(ticker)
+        return stock
+            .delaySubscription(Duration.ofSeconds(2))
+            .repeat { stock != moexClient.getStock(ticker) }
+            .map { it.marketdata.data.first() }
+            .map {
+                StockPriceResponse(
+                    ticker = it[0],
+                    moneyValue = MoneyValue(
+                        integer = it[1].toDouble().toInt(),
+                        fractional = it[1].toBigDecimal().subtract(BigDecimal(it[1].toDouble().toInt()))
+                            .toPlainString(),
+                        currency = moexProperties.api.shares.defaultCurrency
+                    ),
+                    time = LocalTime.parse(it[2]),
+                )
+            }
+            .onErrorMap { throw StockNotFoundException("Stock not found") }
+            .asFlow()
+            .distinctUntilChangedBy { it.moneyValue }
     }
 
     suspend fun getMoexStocksByTickers(request: TickersListRequest): List<StockPriceResponse> = coroutineScope {

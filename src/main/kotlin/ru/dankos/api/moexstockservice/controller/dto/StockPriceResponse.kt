@@ -1,8 +1,11 @@
 package ru.dankos.api.moexstockservice.controller.dto
 
-class StockPriceResponse(
+import java.time.LocalTime
+
+data class StockPriceResponse(
     val ticker: String,
     val moneyValue: MoneyValue,
+    val time: LocalTime,
 )
 
 data class MoneyValue(
