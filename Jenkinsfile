@@ -7,7 +7,9 @@ pipeline {
         stage('Build project'){
             steps{
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Dankosik/moex-stock-api']]])
-                sh 'gradle clean build'
+                withGradle(){
+                   sh './gradlew clean build'
+                }
             }
         }
         stage('Build docker image'){
