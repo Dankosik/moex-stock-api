@@ -17,13 +17,11 @@ class GenericExceptionHandler {
     @ExceptionHandler(value = [Exception::class])
     internal fun handleAnyException(exception: Exception): ErrorResponse =
         exception.toErrorResponse(INTERNAL_SERVER_ERROR)
-            .apply { logger.error { message } }
 
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler(value = [StockNotFoundException::class])
     internal fun handleEntityNotFoundException(exception: StockNotFoundException): ErrorResponse =
         exception.toErrorResponse(NOT_FOUND)
-            .apply { logger.error { message } }
 
     private fun Exception.toErrorResponse(httpStatus: HttpStatus): ErrorResponse = ErrorResponse(
         message = message,
