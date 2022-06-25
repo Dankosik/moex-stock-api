@@ -12,7 +12,7 @@ pipeline {
         stage('Build docker image'){
             steps{
                 script{
-                    sh 'docker build -t dankos/moex-stock-api .'
+                    sh 'docker build -t dankosik/moex-stock-api .'
                 }
             }
         }
