@@ -1,3 +1,8 @@
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: expireAfterWrite=30s
 server:
   port: 8081
 moex:

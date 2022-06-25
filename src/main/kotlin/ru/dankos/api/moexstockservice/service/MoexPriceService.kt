@@ -21,11 +21,12 @@ import java.time.LocalTime
 @Service
 class MoexPriceService(
     private val moexClient: MoexClient,
-    private val moexProperties: MoexProperties
+    private val moexProperties: MoexProperties,
+    private val cacheStockService: CacheStockService
 ) {
 
     suspend fun getStockPriceByTicker(ticker: String): StockPriceResponse {
-        val data = moexClient.getStockByTicker(ticker).awaitSingle().marketdata.data
+        val data = cacheStockService.getStockPriceByTicker(ticker).awaitSingle().marketdata.data
         if (data.isEmpty()) throw StockNotFoundException("Stock not found")
         val response = data.first()
         return StockPriceResponse(

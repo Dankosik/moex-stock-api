@@ -18,6 +18,8 @@ repositories {
 extra["springCloudVersion"] = "2021.0.3"
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1")
     implementation ("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
     implementation ("com.playtika.reactivefeign:feign-reactor-spring-cloud-starter:3.2.1")
