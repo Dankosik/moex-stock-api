@@ -22,7 +22,7 @@ pipeline {
                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
                         sh 'docker login -u dankosik -p ${dockerhubpwd}'
                    }
-                   sh 'docker push dankosik/moex-stock-service'
+                   sh 'docker push dankosik/moex-stock-api'
                 }
             }
         }
