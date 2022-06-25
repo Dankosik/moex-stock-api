@@ -1,1 +1,1 @@
-rootProject.name = "moex-stock-service"
+rootProject.name = "moex-stock-api"
