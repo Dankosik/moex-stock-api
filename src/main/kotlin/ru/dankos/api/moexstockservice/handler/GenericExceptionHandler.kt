@@ -1,6 +1,5 @@
 package ru.dankos.api.moexstockservice.handler
 
-import mu.KLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
