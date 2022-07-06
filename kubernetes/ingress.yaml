@@ -8,9 +8,9 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: /
+            path: /moex-stock-api
             backend:
               service:
-                name: kuber-service
+                name: moex-stock-api-service
                 port:
                   number: 80
