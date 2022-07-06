@@ -1,6 +1,6 @@
 spring:
   application:
-    name: moex-stock-api
+    name: moex-stock-api-service
   cache:
     type: caffeine
     caffeine:
