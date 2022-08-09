@@ -1,6 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  namespace: intraday-traiding
   name: main-ingress
 spec:
   rules:
@@ -12,5 +13,12 @@ spec:
             backend:
               service:
                 name: moex-stock-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /stock-api
+            backend:
+              service:
+                name: stock-api-service
                 port:
                   number: 80
