@@ -17,7 +17,7 @@ class MoexStockController(
     private val moexPriceService: MoexPriceService,
 ) {
 
-    @GetMapping("/price/{ticker}")
+    @GetMapping("/{ticker}/price")
     suspend fun getMoexStockPriceByTicker(@PathVariable ticker: String): StockPriceResponse =
         moexPriceService.getStockPriceByTicker(ticker)
 
@@ -25,7 +25,7 @@ class MoexStockController(
     suspend fun getMoexStocksPriceByTickers(@RequestBody request: TickersListRequest): List<StockPriceResponse> =
         moexPriceService.getMoexStocksByTickers(request)
 
-    @GetMapping(value = ["/subscribe/{ticker}"], produces = [MediaType.APPLICATION_STREAM_JSON_VALUE])
+    @GetMapping(value = ["/{ticker}/subscribe"], produces = [MediaType.APPLICATION_STREAM_JSON_VALUE])
     fun subscribe(@PathVariable ticker: String): Flow<StockPriceResponse> =
         moexPriceService.getStockPriceByTickerAsFlow(ticker)
 }

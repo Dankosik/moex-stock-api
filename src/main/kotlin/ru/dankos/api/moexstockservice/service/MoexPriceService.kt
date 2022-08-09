@@ -14,9 +14,9 @@ import ru.dankos.api.moexstockservice.controller.dto.MoneyValue
 import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
 import ru.dankos.api.moexstockservice.exception.StockNotFoundException
-import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalTime
+import kotlin.math.pow
 
 @Service
 class MoexPriceService(
@@ -29,12 +29,12 @@ class MoexPriceService(
         val data = cacheStockService.getStockPriceByTicker(ticker).awaitSingle().marketdata.data
         if (data.isEmpty()) throw StockNotFoundException("Stock not found")
         val response = data.first()
+        val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]).toDouble()).toInt()
         return StockPriceResponse(
             ticker = response[0],
             moneyValue = MoneyValue(
-                integer = response[1].toDouble().toInt(),
-                fractional = response[1].toBigDecimal().subtract(BigDecimal(response[1].toDouble().toInt()))
-                    .toPlainString(),
+                value = (response[1].toDouble() * exchangeUnit).toInt(),
+                minorUnits = exchangeUnit,
                 currency = moexProperties.api.shares.defaultCurrency
             ),
             time = LocalTime.parse(response[2])
@@ -51,9 +51,8 @@ class MoexPriceService(
                 StockPriceResponse(
                     ticker = it[0],
                     moneyValue = MoneyValue(
-                        integer = it[1].toDouble().toInt(),
-                        fractional = it[1].toBigDecimal().subtract(BigDecimal(it[1].toDouble().toInt()))
-                            .toPlainString(),
+                        value = (it[1].toDouble() * 10.0.pow(countDigitsAfterPoint(it[1]).toDouble()).toInt()).toInt(),
+                        minorUnits = 10.0.pow(countDigitsAfterPoint(it[1]).toDouble()).toInt(),
                         currency = moexProperties.api.shares.defaultCurrency
                     ),
                     time = LocalTime.parse(it[2]),
@@ -67,4 +66,7 @@ class MoexPriceService(
     suspend fun getMoexStocksByTickers(request: TickersListRequest): List<StockPriceResponse> = coroutineScope {
         request.tickers.map { async { getStockPriceByTicker(it) } }.awaitAll()
     }
+
+    private fun countDigitsAfterPoint(number: String) =
+        number.reversed().chars().takeWhile { it.toChar() != '.' }.count()
 }
