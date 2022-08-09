@@ -9,7 +9,7 @@ data class StockPriceResponse(
 )
 
 data class MoneyValue(
-    val integer: Int,
-    val fractional: String,
+    val value: Int,
+    val minorUnits: Int,
     val currency: String,
 )
