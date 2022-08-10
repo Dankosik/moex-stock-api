@@ -21,13 +21,13 @@ class GenericExceptionHandler {
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler(value = [StockNotFoundException::class])
     internal fun handleEntityNotFoundException(exception: StockNotFoundException): ErrorResponse =
-        exception.toErrorResponse(NOT_FOUND).apply { logger.error { exception } }
+        exception.toErrorResponse(NOT_FOUND)
 
     private fun Exception.toErrorResponse(httpStatus: HttpStatus): ErrorResponse = ErrorResponse(
-        message = message,
+        errorMessage = message,
         timestamp = Date(),
         errorCode = httpStatus.value(),
-        errorMessage = httpStatus.name,
+        httpStatus = httpStatus.name,
     )
 
     companion object : KLogging()

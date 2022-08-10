@@ -3,11 +3,10 @@ package ru.dankos.api.moexstockservice.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
+import mu.KLogging
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import ru.dankos.api.moexstockservice.client.MoexClient
 import ru.dankos.api.moexstockservice.config.MoexProperties
 import ru.dankos.api.moexstockservice.controller.dto.MoneyValue
@@ -27,7 +26,10 @@ class MoexPriceService(
 
     suspend fun getStockPriceByTicker(ticker: String): StockPriceResponse {
         val data = cacheStockService.getStockPriceByTicker(ticker).awaitSingle().marketdata.data
-        if (data.isEmpty()) throw StockNotFoundException("Stock not found")
+        if (data.isEmpty()) {
+            throw StockNotFoundException("Stock not found")
+                .apply { logger.warn { "Could not get stock by ticker: $ticker" } }
+        }
         val response = data.first()
         val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]).toDouble()).toInt()
         return StockPriceResponse(
@@ -41,7 +43,7 @@ class MoexPriceService(
         )
     }
 
-    fun getStockPriceByTickerAsFlow(ticker: String): Flow<StockPriceResponse> {
+    fun getStockPriceByTickerAsFlux(ticker: String): Flux<StockPriceResponse> {
         val stock = moexClient.getStockByTicker(ticker)
         return stock
             .delaySubscription(Duration.ofSeconds(2))
@@ -58,9 +60,11 @@ class MoexPriceService(
                     time = LocalTime.parse(it[2]),
                 )
             }
-            .onErrorMap { throw StockNotFoundException("Stock not found") }
-            .asFlow()
-            .distinctUntilChangedBy { it.moneyValue }
+            .onErrorMap {
+                throw StockNotFoundException("Stock not found")
+                    .apply { logger.warn { "Could not get stock by ticker: $ticker" } }
+            }
+            .distinctUntilChanged { it.moneyValue }
     }
 
     suspend fun getMoexStocksByTickers(request: TickersListRequest): List<StockPriceResponse> = coroutineScope {
@@ -68,5 +72,9 @@ class MoexPriceService(
     }
 
     private fun countDigitsAfterPoint(number: String) =
-        number.reversed().chars().takeWhile { it.toChar() != '.' }.count()
+        number.reversed().chars().takeWhile { it.toChar() != POINT }.count()
+
+    companion object : KLogging() {
+        private const val POINT = '.'
+    }
 }

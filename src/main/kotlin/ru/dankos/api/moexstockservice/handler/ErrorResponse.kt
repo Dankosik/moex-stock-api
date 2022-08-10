@@ -3,8 +3,8 @@ package ru.dankos.api.moexstockservice.handler
 import java.util.*
 
 class ErrorResponse(
-    val message: String?,
-    val timestamp: Date,
+    val errorMessage: String?,
     val errorCode: Int,
-    val errorMessage: String
+    val httpStatus: String,
+    val timestamp: Date
 )
