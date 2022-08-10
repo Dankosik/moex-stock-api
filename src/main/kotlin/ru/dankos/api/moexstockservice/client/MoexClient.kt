@@ -7,7 +7,7 @@ import reactivefeign.spring.config.ReactiveFeignClient
 import reactor.core.publisher.Mono
 import ru.dankos.api.moexstockservice.client.dto.MoexStockResponse
 
-@ReactiveFeignClient(name = "moexstocks", url = "\${moex.api.shares.url}")
+@ReactiveFeignClient(name = "moexstocks", url = "\${feign-services.moex-endpoint}")
 interface MoexClient {
 
     @CollectionFormat(feign.CollectionFormat.CSV)

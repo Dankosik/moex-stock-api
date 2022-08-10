@@ -1,0 +1,13 @@
+reactive:
+  feign:
+    loadbalancer:
+      enabled: false
+    circuit:
+      breaker:
+        enabled: false
+moex:
+  api:
+    shares:
+      defaultCurrency: RUR
+feign-services:
+  moex-endpoint: "http://localhost:${wiremock.server.port}/iss/engines/stock/markets/shares/boards/TQBR/securities/"

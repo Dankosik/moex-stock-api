@@ -10,5 +10,6 @@ spring:
 moex:
   api:
     shares:
-      url: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
       defaultCurrency: RUR
+feign-services:
+  moex-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"

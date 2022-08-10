@@ -14,6 +14,5 @@ class Api(
 )
 
 class Shares(
-    val url: String,
     val defaultCurrency: String
 )
