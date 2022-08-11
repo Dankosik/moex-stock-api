@@ -22,3 +22,10 @@ spec:
                 name: stock-api-service
                 port:
                   number: 80
+          - pathType: Prefix
+              path: /yahoo-stock-api
+              backend:
+                service:
+                  name: yahoo-api-service
+                  port:
+                    number: 80
