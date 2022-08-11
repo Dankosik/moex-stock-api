@@ -31,16 +31,20 @@ class MoexPriceService(
                 .apply { logger.warn { "Could not get stock by ticker: $ticker" } }
         }
         val response = data.first()
-        val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]).toDouble()).toInt()
-        return StockPriceResponse(
-            ticker = response[0],
-            moneyValue = MoneyValue(
-                value = (response[1].toDouble() * exchangeUnit).toInt(),
-                minorUnits = exchangeUnit,
-                currency = moexProperties.api.shares.defaultCurrency
-            ),
-            time = LocalTime.parse(response[2])
-        )
+        return if (response[1] != null) {
+            val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]!!).toDouble()).toInt()
+            StockPriceResponse(
+                ticker = response[0]!!,
+                moneyValue = MoneyValue(
+                    value = (response[1]!!.toDouble() * exchangeUnit).toInt(),
+                    minorUnits = exchangeUnit,
+                    currency = moexProperties.api.shares.defaultCurrency
+                ),
+                time = LocalTime.parse(response[2])
+            )
+        } else {
+            getStockLastPriceByTickerWhenMoexClosed(ticker)
+        }
     }
 
     fun getStockPriceByTickerAsFlux(ticker: String): Flux<StockPriceResponse> {
@@ -51,10 +55,11 @@ class MoexPriceService(
             .map { it.marketdata.data.first() }
             .map {
                 StockPriceResponse(
-                    ticker = it[0],
+                    ticker = it[0]!!,
                     moneyValue = MoneyValue(
-                        value = (it[1].toDouble() * 10.0.pow(countDigitsAfterPoint(it[1]).toDouble()).toInt()).toInt(),
-                        minorUnits = 10.0.pow(countDigitsAfterPoint(it[1]).toDouble()).toInt(),
+                        value = (it[1]!!.toDouble() * 10.0.pow(countDigitsAfterPoint(it[1]!!).toDouble())
+                            .toInt()).toInt(),
+                        minorUnits = 10.0.pow(countDigitsAfterPoint(it[1]!!).toDouble()).toInt(),
                         currency = moexProperties.api.shares.defaultCurrency
                     ),
                     time = LocalTime.parse(it[2]),
@@ -71,10 +76,25 @@ class MoexPriceService(
         request.tickers.map { async { getStockPriceByTicker(it) } }.awaitAll()
     }
 
+    private suspend fun getStockLastPriceByTickerWhenMoexClosed(ticker: String): StockPriceResponse {
+        val response = cacheStockService.getClosedStockPriceByTicker(ticker).awaitSingle().securities.data.first()
+        val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]).toDouble()).toInt()
+        return StockPriceResponse(
+            ticker = response[0],
+            moneyValue = MoneyValue(
+                value = (response[1].toDouble() * exchangeUnit).toInt(),
+                minorUnits = exchangeUnit,
+                currency = moexProperties.api.shares.defaultCurrency
+            ),
+            time = LocalTime.now().minusMinutes(MOEX_DELAY)
+        )
+    }
+
     private fun countDigitsAfterPoint(number: String) =
         number.reversed().chars().takeWhile { it.toChar() != POINT }.count()
 
     companion object : KLogging() {
         private const val POINT = '.'
+        private const val MOEX_DELAY: Long = 15
     }
 }
