@@ -31,7 +31,8 @@ class MoexPriceService(
                 .apply { logger.warn { "Could not get stock by ticker: $ticker" } }
         }
         val response = data.first()
-        return if (response[1] != null) {
+        val moexNotClosed = response[1] != null
+        return if (moexNotClosed) {
             val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]!!).toDouble()).toInt()
             StockPriceResponse(
                 ticker = response[0]!!,
