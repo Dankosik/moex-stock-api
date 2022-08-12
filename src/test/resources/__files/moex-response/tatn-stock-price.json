@@ -1,0 +1,16 @@
+{
+  "marketdata": {
+    "columns": [
+      "SECID",
+      "LAST",
+      "TIME"
+    ],
+    "data": [
+      [
+        "TATN",
+        419.15,
+        "10:05:04"
+      ]
+    ]
+  }
+}

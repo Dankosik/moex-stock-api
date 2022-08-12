@@ -1,0 +1,9 @@
+{
+  "ticker": "VTBR",
+  "moneyValue": {
+    "value": 18135,
+    "minorUnits": 1000000,
+    "currency": "RUR"
+  },
+  "time": "10:11:34"
+}

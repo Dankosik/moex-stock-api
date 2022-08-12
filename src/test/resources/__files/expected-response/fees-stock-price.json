@@ -1,0 +1,9 @@
+{
+  "ticker": "FEES",
+  "moneyValue": {
+    "value": 905,
+    "minorUnits": 10000,
+    "currency": "RUR"
+  },
+  "time": "10:09:05"
+}

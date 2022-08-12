@@ -1,0 +1,9 @@
+{
+  "ticker": "YNDX",
+  "moneyValue": {
+    "value": 199860,
+    "minorUnits": 100,
+    "currency": "RUR"
+  },
+  "time": "10:08:10"
+}
