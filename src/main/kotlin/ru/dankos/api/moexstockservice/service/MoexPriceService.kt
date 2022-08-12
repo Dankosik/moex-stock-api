@@ -33,17 +33,12 @@ class MoexPriceService(
         val response = data.first()
         val moexNotClosed = response[1] != null
         return if (moexNotClosed) {
-            var exchangeUnits = 10.0.pow(countDigitsAfterPoint(response[1]!!).toDouble()).toInt()
-            var value = (response[1]!!.toDouble() * exchangeUnits).toInt()
-            if (exchangeUnits < 100) {
-                exchangeUnits *= 10
-                value *= 10
-            }
+            val moneyValueDefaultForm = conversionMinorUnitsToExchangeUnits(response[1]!!)
             StockPriceResponse(
                 ticker = response[0]!!,
                 moneyValue = MoneyValue(
-                    value = value,
-                    minorUnits = exchangeUnits,
+                    value = moneyValueDefaultForm.value,
+                    minorUnits = moneyValueDefaultForm.minorUnits,
                     currency = moexProperties.api.shares.defaultCurrency
                 ),
                 time = LocalTime.parse(response[2])
@@ -60,17 +55,12 @@ class MoexPriceService(
             .repeat { stock != moexClient.getStockByTicker(ticker) }
             .map { it.marketdata.data.first() }
             .map {
-                var exchangeUnits = 10.0.pow(countDigitsAfterPoint(it[1]!!).toDouble()).toInt()
-                var value = (it[1]!!.toDouble() * exchangeUnits).toInt()
-                if (exchangeUnits < 100) {
-                    exchangeUnits *= 10
-                    value *= 10
-                }
+                val moneyValueDefaultForm = conversionMinorUnitsToExchangeUnits(it[1]!!)
                 StockPriceResponse(
                     ticker = it[0]!!,
                     moneyValue = MoneyValue(
-                        value = value,
-                        minorUnits = exchangeUnits,
+                        value = moneyValueDefaultForm.value,
+                        minorUnits = moneyValueDefaultForm.minorUnits,
                         currency = moexProperties.api.shares.defaultCurrency
                     ),
                     time = LocalTime.parse(it[2]),
@@ -87,18 +77,6 @@ class MoexPriceService(
         request.tickers.map { async { getStockPriceByTicker(it) } }.awaitAll()
     }
 
-    fun getSumStocks(stocksList: List<MoneyValue>): MoneyValue {
-        var sumValue = 0
-        stocksList.stream()
-            .forEach { stock ->
-                val minorUnitMillion = stock.minorUnits.toString().padEnd(7, '0').toInt()
-                val addingZerosToValue = minorUnitMillion.div(stock.minorUnits)
-                val valueMinorUnit = (stock.value.toString() + addingZerosToValue.toString().drop(1)).toInt()
-                sumValue += valueMinorUnit
-            }
-        return MoneyValue(sumValue, DEFAULT_MINOR_UNITS, stocksList[0].currency)
-    }
-
     private suspend fun getStockLastPriceByTickerWhenMoexClosed(ticker: String): StockPriceResponse {
         val response = cacheStockService.getClosedStockPriceByTicker(ticker).awaitSingle().securities.data.first()
         val exchangeUnit = 10.0.pow(countDigitsAfterPoint(response[1]).toDouble()).toInt()
@@ -111,6 +89,32 @@ class MoexPriceService(
             ),
             time = LocalTime.now().minusMinutes(MOEX_DELAY)
         )
+    }
+
+    private fun conversionMinorUnitsToExchangeUnits(cost: String): MoneyValue {
+        var exchangeUnits = 10.0.pow(countDigitsAfterPoint(cost).toDouble()).toInt()
+        var value = (cost.toDouble() * exchangeUnits).toInt()
+        if (exchangeUnits < 100) {
+            exchangeUnits *= 10
+            value *= 10
+        }
+        return MoneyValue(value, exchangeUnits, moexProperties.api.shares.defaultCurrency)
+    }
+
+    private fun getSumStocks(stocks: List<MoneyValue>): MoneyValue {
+        var sumValue = 0
+        stocks.stream()
+            .forEach { stock ->
+                sumValue += calculateMinorUnitsToHundred(stock).value
+            }
+        return MoneyValue(sumValue / 1000, 100, stocks[0].currency)
+    }
+
+    private fun calculateMinorUnitsToHundred(moneyValue: MoneyValue): MoneyValue {
+        val millionMinorUnit = moneyValue.minorUnits.toString().padEnd(7, '0').toInt()
+        val addingZerosToValue = millionMinorUnit.div(moneyValue.minorUnits)
+        val valueWithMillionMinorUnit = (moneyValue.value.toString() + addingZerosToValue.toString().drop(1)).toInt()
+        return MoneyValue(valueWithMillionMinorUnit, millionMinorUnit, moneyValue.currency)
     }
 
     private fun countDigitsAfterPoint(number: String): Int {
