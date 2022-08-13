@@ -5,26 +5,30 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Flux
+import ru.dankos.api.moexstockservice.controller.dto.AllTickersResponse
 import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
-import ru.dankos.api.moexstockservice.service.MoexPriceService
+import ru.dankos.api.moexstockservice.service.StocksService
 
 @RestController
 @RequestMapping("/stocks")
 class MoexStockController(
-    private val moexPriceService: MoexPriceService,
+    private val stocksService: StocksService,
 ) {
 
     @GetMapping("/{ticker}/price")
     suspend fun getMoexStockPriceByTicker(@PathVariable ticker: String): StockPriceResponse =
-        moexPriceService.getStockPriceByTicker(ticker)
+        stocksService.getStockPriceByTicker(ticker)
 
     @GetMapping("/price")
     suspend fun getMoexStocksPriceByTickers(@RequestBody request: TickersListRequest): List<StockPriceResponse> =
-        moexPriceService.getMoexStocksByTickers(request)
+        stocksService.getMoexStocksByTickers(request)
 
-    @GetMapping(value = ["/{ticker}/subscribe"])
-    fun subscribe(@PathVariable ticker: String): Flux<StockPriceResponse> =
-        moexPriceService.getStockPriceByTickerAsFlux(ticker)
+    @GetMapping("/tickers")
+    suspend fun getAllAvailableTickers(): AllTickersResponse =
+        stocksService.getAllAvailableTickers()
+
+//    @GetMapping(value = ["/{ticker}/subscribe"])
+//    fun subscribe(@PathVariable ticker: String): Flux<StockPriceResponse> =
+//        moexPriceService.getStockPriceByTickerAsFlux(ticker)
 }

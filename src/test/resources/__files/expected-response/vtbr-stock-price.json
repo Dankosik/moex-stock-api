@@ -1,6 +1,6 @@
 {
   "ticker": "VTBR",
-  "moneyValue": {
+  "stockPrice": {
     "value": 18135,
     "minorUnits": 1000000,
     "currency": "RUR"

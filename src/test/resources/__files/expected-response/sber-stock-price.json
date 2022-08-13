@@ -1,6 +1,6 @@
 {
   "ticker": "SBER",
-  "moneyValue": {
+  "stockPrice": {
     "value": 11807,
     "minorUnits": 100,
     "currency": "RUR"

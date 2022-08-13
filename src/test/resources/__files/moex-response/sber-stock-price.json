@@ -3,13 +3,21 @@
     "columns": [
       "SECID",
       "LAST",
-      "TIME"
+      "TIME",
+      "OPEN",
+      "LOW",
+      "HIGH",
+      "ISSUECAPITALIZATION"
     ],
     "data": [
       [
         "SBER",
         118.07,
-        "18:49:39"
+        "18:49:39",
+        118.07,
+        118.07,
+        118.07,
+        123123123213
       ]
     ]
   }

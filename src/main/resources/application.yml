@@ -7,9 +7,21 @@ spring:
       spec: expireAfterWrite=30s
   webflux:
     base-path: /moex-stock-api
+caching:
+  cacheNames:
+    marketData:
+      timeout: 5 # in seconds
+    closedMarketData:
+      timeout: 60
+    tickers:
+      timeout: 86400 # 1 day
 moex:
   api:
     shares:
       defaultCurrency: RUR
 feign-services:
-  moex-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
+  moex-stocks-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
+  moex-tickers-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/securities"
+logging:
+  level:
+    reactivefeign.client.log: TRACE

@@ -3,13 +3,21 @@
     "columns": [
       "SECID",
       "LAST",
-      "TIME"
+      "TIME",
+      "OPEN",
+      "LOW",
+      "HIGH",
+      "ISSUECAPITALIZATION"
     ],
     "data": [
       [
         "FEES",
         0.0905,
-        "10:09:05"
+        "10:09:05",
+        0.0905,
+        0.0905,
+        0.0905,
+        213212321
       ]
     ]
   }

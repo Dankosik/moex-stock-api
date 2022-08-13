@@ -3,13 +3,21 @@
     "columns": [
       "SECID",
       "LAST",
-      "TIME"
+      "TIME",
+      "OPEN",
+      "LOW",
+      "HIGH",
+      "ISSUECAPITALIZATION"
     ],
     "data": [
       [
         "VTBR",
         0.018135,
-        "10:11:34"
+        "10:11:34",
+        0.018135,
+        0.018135,
+        0.018135,
+        2131232131123
       ]
     ]
   }
