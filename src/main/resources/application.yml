@@ -3,8 +3,6 @@ spring:
     name: moex-stock-api-service
   cache:
     type: caffeine
-    caffeine:
-      spec: expireAfterWrite=30s
   webflux:
     base-path: /moex-stock-api
 caching:
