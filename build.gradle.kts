@@ -12,6 +12,8 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+    jcenter()
+    maven { url = uri("https://dl.bintray.com/konrad-kaminski/maven") }
 }
 
 extra["springCloudVersion"] = "2021.0.3"
@@ -29,6 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("io.github.microutils:kotlin-logging:2.1.21")
+    implementation("org.springframework.kotlin:spring-kotlin-coroutine:0.3.7")
 
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
