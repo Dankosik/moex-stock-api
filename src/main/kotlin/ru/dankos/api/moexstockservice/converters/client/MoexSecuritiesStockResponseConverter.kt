@@ -13,6 +13,6 @@ fun MoexSecuritiesStockResponse.toMoexStockClosedPrice() = MoexStockClosedPrice(
 
 fun MoexSecuritiesStockResponse.toMoexBaseInfo() = MoexStockBaseInfo(
     ticker = securities.data[0][0],
-    exchanges = Exchanges.MOEX,
+    exchange = Exchanges.MOEX,
     companyName = securities.data[0][1],
 )
