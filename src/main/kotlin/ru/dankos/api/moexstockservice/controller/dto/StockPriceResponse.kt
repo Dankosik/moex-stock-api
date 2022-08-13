@@ -4,12 +4,12 @@ import java.time.LocalTime
 
 data class StockPriceResponse(
     val ticker: String,
-    val moneyValue: MoneyValue,
+    val stockPrice: MoneyValue,
     val time: LocalTime,
 )
 
 data class MoneyValue(
-    val value: Int,
-    val minorUnits: Int,
-    val currency: String,
+    val value: Long? = null,
+    val minorUnits: Int? = null,
+    val currency: String? = null,
 )

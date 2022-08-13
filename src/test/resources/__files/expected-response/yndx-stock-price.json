@@ -1,9 +1,9 @@
 {
-  "ticker": "SBER",
+  "ticker": "YNDX",
   "stockPrice": {
-    "value": 11807,
+    "value": 199860,
     "minorUnits": 100,
     "currency": "RUR"
   },
-  "time": "18:49:39"
+  "time": "10:08:10"
 }

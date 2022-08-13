@@ -5,7 +5,8 @@ import java.io.File
 
 fun stubForStockFromMoex(ticker: String, bodyFilePath: String) {
     WireMock.stubFor(
-        WireMock.get(WireMock.urlEqualTo("/iss/engines/stock/markets/shares/boards/TQBR/securities/$ticker.json?iss.only=marketdata&iss.meta=off&marketdata.columns=SECID%2CLAST%2CTIME"))
+        WireMock.get(WireMock.urlEqualTo("/iss/engines/stock/markets/shares/boards/TQBR/securities/$ticker.json?" +
+                "iss.only=marketdata&iss.meta=off&marketdata.columns=SECID%2CLAST%2CTIME%2COPEN%2CLOW%2CHIGH%2CISSUECAPITALIZATION"))
             .willReturn(
                 WireMock.aResponse()
                     .withStatus(200)
