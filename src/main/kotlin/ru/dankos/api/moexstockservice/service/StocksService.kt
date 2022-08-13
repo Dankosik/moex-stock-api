@@ -3,7 +3,6 @@ package ru.dankos.api.moexstockservice.service
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.reactor.awaitSingle
 import mu.KLogging
 import org.springframework.stereotype.Service
 import ru.dankos.api.moexstockservice.client.MoexStockClient
@@ -11,6 +10,7 @@ import ru.dankos.api.moexstockservice.config.MoexProperties
 import ru.dankos.api.moexstockservice.controller.dto.AllTickersResponse
 import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
+import ru.dankos.api.moexstockservice.model.MoexStockBaseInfo
 import java.time.LocalTime
 
 @Service
@@ -37,15 +37,18 @@ class StocksService(
     suspend fun getAllAvailableTickers(): AllTickersResponse =
         cacheableMoexService.getAllAvailableTickers()
 
+    suspend fun getMoexStockBaseInfoByTicker(ticker: String): MoexStockBaseInfo =
+        cacheableMoexService.getMoexStockBaseInfoByTicker(ticker)
+
     suspend fun getMoexStocksByTickers(request: TickersListRequest): List<StockPriceResponse> = coroutineScope {
         request.tickers.map { async { getStockPriceByTicker(it) } }.awaitAll()
     }
 
     private suspend fun getStockLastPriceByTickerWhenMoexClosed(ticker: String): StockPriceResponse {
-        val moexSecuritiesData = cacheableMoexService.getSecuritiesDataByTicker(ticker)
+        val moexSecuritiesData = cacheableMoexService.getMoexStockClosedPriceByTicker(ticker)
         return StockPriceResponse(
             ticker = moexSecuritiesData.ticker,
-            stockPrice =moexSecuritiesData.stockClosedPrice,
+            stockPrice = moexSecuritiesData.stockClosedPrice,
             time = LocalTime.now().minusMinutes(MOEX_DELAY)
         )
     }

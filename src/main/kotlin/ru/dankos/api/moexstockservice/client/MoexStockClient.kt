@@ -18,4 +18,8 @@ interface MoexStockClient {
     @CollectionFormat(feign.CollectionFormat.CSV)
     @GetMapping("/{ticker}.json?iss.only=securities&securities.columns=SECID,PREVPRICE,SHORTNAME,SECNAME")
     fun getClosedStockPriceByTicker(@PathVariable("ticker") ticker: String): Mono<MoexSecuritiesStockResponse>
+
+    @CollectionFormat(feign.CollectionFormat.CSV)
+    @GetMapping("/{ticker}.json?iss.only=securities&securities.columns=SECID,SECNAME")
+    fun getStockBaseInfo(@PathVariable("ticker") ticker: String): Mono<MoexSecuritiesStockResponse>
 }

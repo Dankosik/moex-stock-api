@@ -9,9 +9,11 @@ caching:
   cacheNames:
     marketData:
       timeout: 5 # in seconds
-    closedMarketData:
+    closedStockPrice:
       timeout: 60
     tickers:
+      timeout: 86400 # 1 day
+    baseInfo:
       timeout: 86400 # 1 day
 moex:
   api:

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.dankos.api.moexstockservice.controller.dto.AllTickersResponse
 import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
+import ru.dankos.api.moexstockservice.model.MoexStockBaseInfo
 import ru.dankos.api.moexstockservice.service.StocksService
 
 @RestController
@@ -19,6 +20,10 @@ class MoexStockController(
     @GetMapping("/{ticker}/price")
     suspend fun getMoexStockPriceByTicker(@PathVariable ticker: String): StockPriceResponse =
         stocksService.getStockPriceByTicker(ticker)
+
+    @GetMapping("/{ticker}/baseInfo")
+    suspend fun getMoexStockBaseInfoByTicker(@PathVariable ticker: String): MoexStockBaseInfo =
+        stocksService.getMoexStockBaseInfoByTicker(ticker)
 
     @GetMapping("/price")
     suspend fun getMoexStocksPriceByTickers(@RequestBody request: TickersListRequest): List<StockPriceResponse> =
