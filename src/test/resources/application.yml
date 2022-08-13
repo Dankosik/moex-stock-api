@@ -5,9 +5,18 @@ reactive:
     circuit:
       breaker:
         enabled: false
+caching:
+  cacheNames:
+    marketData:
+      timeout: 5 # in seconds
+    closedMarketData:
+      timeout: 60
+    tickers:
+      timeout: 86400 # 1 day
 moex:
   api:
     shares:
       defaultCurrency: RUR
 feign-services:
-  moex-endpoint: "http://localhost:${wiremock.server.port}/iss/engines/stock/markets/shares/boards/TQBR/securities/"
+  moex-stocks-endpoint: "http://localhost:${wiremock.server.port}/iss/engines/stock/markets/shares/boards/TQBR/securities/"
+  moex-tickers-endpoint: "http://localhost:${wiremock.server.port}/iss/engines/stock/markets/shares/boardgroups/57/securities"

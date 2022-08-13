@@ -3,13 +3,21 @@
     "columns": [
       "SECID",
       "LAST",
-      "TIME"
+      "TIME",
+      "OPEN",
+      "LOW",
+      "HIGH",
+      "ISSUECAPITALIZATION"
     ],
     "data": [
       [
         "TATN",
         419.15,
-        "10:05:04"
+        "10:05:04",
+        419.15,
+        419.15,
+        419.15,
+        123123123123
       ]
     ]
   }

@@ -1,6 +1,6 @@
 {
   "ticker": "FEES",
-  "moneyValue": {
+  "stockPrice": {
     "value": 905,
     "minorUnits": 10000,
     "currency": "RUR"

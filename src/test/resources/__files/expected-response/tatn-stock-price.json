@@ -1,6 +1,6 @@
 {
   "ticker": "TATN",
-  "moneyValue": {
+  "stockPrice": {
     "value": 41915,
     "minorUnits": 100,
     "currency": "RUR"
