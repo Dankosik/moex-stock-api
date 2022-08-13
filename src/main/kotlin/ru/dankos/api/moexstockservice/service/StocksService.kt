@@ -21,7 +21,7 @@ class StocksService(
 ) {
 
     suspend fun getStockPriceByTicker(ticker: String): StockPriceResponse {
-        val moexMarketData = cacheableMoexService.getStockPriceByTicker(ticker).awaitSingle()
+        val moexMarketData = cacheableMoexService.getStockMarketInfoByTicker(ticker)
         val moexNotClosed = moexMarketData.stockPrice.value != null
         return if (moexNotClosed) {
             StockPriceResponse(
@@ -35,14 +35,14 @@ class StocksService(
     }
 
     suspend fun getAllAvailableTickers(): AllTickersResponse =
-        cacheableMoexService.getAllAvailableTickers().awaitSingle()
+        cacheableMoexService.getAllAvailableTickers()
 
     suspend fun getMoexStocksByTickers(request: TickersListRequest): List<StockPriceResponse> = coroutineScope {
         request.tickers.map { async { getStockPriceByTicker(it) } }.awaitAll()
     }
 
     private suspend fun getStockLastPriceByTickerWhenMoexClosed(ticker: String): StockPriceResponse {
-        val moexSecuritiesData = cacheableMoexService.getClosedStockPriceByTicker(ticker).awaitSingle()
+        val moexSecuritiesData = cacheableMoexService.getSecuritiesDataByTicker(ticker)
         return StockPriceResponse(
             ticker = moexSecuritiesData.ticker,
             stockPrice =moexSecuritiesData.stockClosedPrice,

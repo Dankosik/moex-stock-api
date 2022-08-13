@@ -3,10 +3,10 @@ package ru.dankos.api.moexstockservice.converters.client
 import ru.dankos.api.moexstockservice.client.dto.MoexMarketDataStockResponse
 import ru.dankos.api.moexstockservice.controller.dto.MoneyValue
 import ru.dankos.api.moexstockservice.converters.convertMoexPriceToMoneyValue
-import ru.dankos.api.moexstockservice.model.MoexMarketData
+import ru.dankos.api.moexstockservice.model.MoexMarketInfo
 import java.time.LocalTime
 
-fun MoexMarketDataStockResponse.toMoexMarketData() = MoexMarketData(
+fun MoexMarketDataStockResponse.toMoexMarketData() = MoexMarketInfo(
     ticker = marketdata.data[0][0]!!,
     stockPrice = convertMoexPriceToMoneyValue(marketdata.data[0][1]),
     stockPriceDailyHigh = convertMoexPriceToMoneyValue(marketdata.data[0][5]),
