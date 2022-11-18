@@ -1,23 +1,30 @@
 package ru.dankos.api.moexstockservice.service
 
+import io.netty.channel.ConnectTimeoutException
+import io.netty.handler.timeout.ReadTimeoutException
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import mu.KLogging
 import org.springframework.stereotype.Service
+import reactor.util.retry.Retry
 import ru.dankos.api.moexstockservice.client.MoexStockClient
-import ru.dankos.api.moexstockservice.config.MoexProperties
 import ru.dankos.api.moexstockservice.controller.dto.AllTickersResponse
 import ru.dankos.api.moexstockservice.controller.dto.StockPriceResponse
 import ru.dankos.api.moexstockservice.controller.dto.TickersListRequest
+import ru.dankos.api.moexstockservice.converters.client.toMoexMarketData
 import ru.dankos.api.moexstockservice.model.MoexStockBaseInfo
+import java.io.IOException
+import java.time.Duration
 import java.time.LocalTime
 
 @Service
 class StocksService(
     private val moexStockClient: MoexStockClient,
-    private val moexProperties: MoexProperties,
     private val cacheableMoexService: CacheableMoexService,
+    private val userSubscriptionService: UserSubscriptionService,
 ) {
 
     suspend fun getStockPriceByTicker(ticker: String): StockPriceResponse {
@@ -52,44 +59,55 @@ class StocksService(
             time = LocalTime.now().minusMinutes(MOEX_DELAY)
         )
     }
-//    fun getStockPriceByTickerAsFlux(ticker: String): Flux<StockPriceResponse> {
-//        val stock = moexStockClient.getStockByTicker(ticker)
-//        return stock
-//            .delaySubscription(Duration.ofSeconds(2))
-//            .repeat { stock != moexStockClient.getStockByTicker(ticker) }
-//            .map { it.toMoexMarketData() }
-//            .map {
-//                StockPriceResponse(
-//                    ticker = it.ticker,
-//                    stockPrice = it.stockPrice,
-//                    time = it.time,
-//                )
-//            }
-//            .onErrorMap {
-//                throw StockNotFoundException("Stock not found")
-//                    .apply { logger.warn { "Could not get stock by ticker: $ticker" } }
-//            }
-//            .distinctUntilChanged { it.stockPrice }
-//    }
 
-//    private fun getSumStocks(stocks: List<MoneyValue>): MoneyValue {
-//        var sumValue: Long = 0
-//        stocks.stream()
-//            .forEach { stock ->
-//                sumValue += calculateMinorUnitsToHundred(stock).value
-//            }
-//        return MoneyValue(sumValue / 1000, 100, stocks[0].currency)
-//    }
-//
-//    private fun calculateMinorUnitsToHundred(moneyValue: MoneyValue): MoneyValue {
-//        val millionMinorUnit = moneyValue.minorUnits.toString().padEnd(7, '0').toInt()
-//        val addingZerosToValue = millionMinorUnit.div(moneyValue.minorUnits)
-//        val valueWithMillionMinorUnit = (moneyValue.value.toString() + addingZerosToValue.toString().drop(1)).toLong()
-//        return MoneyValue(valueWithMillionMinorUnit, millionMinorUnit, moneyValue.currency)
-//    }
+    fun getStockPricesByTickerAsFlow(ticker: String) =
+        moexStockClient.getStockByTicker(ticker)
+            .delaySubscription(Duration.ofSeconds(1))
+            .retryWhen(
+                Retry.fixedDelay(100, Duration.ofSeconds(1))
+                    .filter { it is IOException || it is ReadTimeoutException || it is ConnectTimeoutException })
+            .repeat()
+            .filter { it.marketdata.data.all { list-> list.isNotEmpty() } }
+            .onErrorContinue { e, _ -> logger.error { e.stackTrace } }
+            .map { it.toMoexMarketData() }
+            .filter { it.stockPrice.value != null }
+            .distinctUntilChanged { it.stockPrice.value }
+//            .asFlow()
+
+    suspend fun pushNotificationWhenPriceIsEqualToSubscription() = coroutineScope {
+        getAllAvailableTickers().tickers.forEach { ticker ->
+            launch {
+                var from = 0L
+                getStockPricesByTickerAsFlow(ticker)
+//                    .onEach {
+//                        if (from == 0L) {
+//                            from = it.stockPrice.value!!
+//                        }
+//                        println(it)
+//                    }
+                    .doOnNext {
+                        if (from == 0L) {
+                            from = it.stockPrice.value!!
+                        }
+                    }
+                    .log()
+                    .skip(1)
+//                    .drop(1)
+                    .subscribe {
+                        GlobalScope.launch {
+                            userSubscriptionService.sendNotificationThatPriceReachedSubscription(
+                                ticker,
+                                from,
+                                it.stockPrice.value!!
+                            )
+                            from = it.stockPrice.value
+                        }
+                    }
+            }
+        }
+    }
 
     companion object : KLogging() {
-        private const val POINT = '.'
         private const val MOEX_DELAY: Long = 15
         private const val DEFAULT_MINOR_UNITS = 1000000
     }

@@ -5,6 +5,14 @@ spring:
     type: caffeine
   webflux:
     base-path: /moex-stock-api
+  data:
+    mongodb:
+      authentication-database: admin
+      host: localhost
+      port: 27017
+      username: rootuser
+      password: rootpass
+      database: moex-stock-api-db
 caching:
   cacheNames:
     marketData:
@@ -22,6 +30,10 @@ moex:
 feign-services:
   moex-stocks-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities"
   moex-tickers-endpoint: "https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/securities"
-logging:
-  level:
-    reactivefeign.client.log: TRACE
+#logging:
+#  level:
+#    reactivefeign.client.log: DEBUG
+reactor:
+  netty:
+    tcp:
+      sslHandshakeTimeout: 100000

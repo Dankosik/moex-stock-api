@@ -32,8 +32,4 @@ class MoexStockController(
     @GetMapping("/tickers")
     suspend fun getAllAvailableTickers(): AllTickersResponse =
         stocksService.getAllAvailableTickers()
-
-//    @GetMapping(value = ["/{ticker}/subscribe"])
-//    fun subscribe(@PathVariable ticker: String): Flux<StockPriceResponse> =
-//        moexPriceService.getStockPriceByTickerAsFlux(ticker)
 }

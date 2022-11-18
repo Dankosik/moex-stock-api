@@ -3,7 +3,7 @@ package ru.dankos.api.moexstockservice.model
 import ru.dankos.api.moexstockservice.controller.dto.MoneyValue
 import java.time.LocalTime
 
-class MoexMarketInfo(
+data class MoexMarketInfo(
     val ticker: String,
     val stockPrice: MoneyValue,
     val stockPriceDailyHigh: MoneyValue,
