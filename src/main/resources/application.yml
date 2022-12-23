@@ -5,6 +5,8 @@ spring:
     type: caffeine
   webflux:
     base-path: /moex-stock-api
+  codec:
+    max-in-memory-size: 10MB
   data:
     mongodb:
       authentication-database: admin

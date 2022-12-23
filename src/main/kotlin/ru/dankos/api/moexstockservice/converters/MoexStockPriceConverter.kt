@@ -4,7 +4,7 @@ import ru.dankos.api.moexstockservice.controller.dto.MoneyValue
 import kotlin.math.pow
 
 fun convertMoexPriceToMoneyValue(price: String?): MoneyValue {
-    if (price == null) {
+    if (price == null || price == "null") {
         return MoneyValue()
     }
     var exchangeUnits = 10.0.pow(countDigitsAfterPoint(price).toDouble()).toInt()

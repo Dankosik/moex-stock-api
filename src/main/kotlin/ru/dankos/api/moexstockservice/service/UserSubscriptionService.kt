@@ -15,32 +15,13 @@ class UserSubscriptionService(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
 
-    suspend fun a(
-        ticker: String,
-        priceFrom: Long,
-        priceTo: Long
-    ): Map<String, List<Subscription>> {
-        val query = if (priceFrom > priceTo) {
-            Query(Criteria.where("subscriptions.price.value").lt(priceFrom).gt(priceTo))
-                .addCriteria(Criteria.where("subscriptions.ticker").`is`(ticker))
-        } else {
-            Query(Criteria.where("subscriptions.price.value").lt(priceTo).gt(priceFrom))
-                .addCriteria(Criteria.where("subscriptions.ticker").`is`(ticker))
-        }
-        return mongoTemplate.find(query, User::class.java).collectList().awaitSingle()
-            .associateBy(
-                { user -> user.id!! },
-                { user -> user.subscriptions.filter { digitInRange(priceFrom, priceTo, it.price.value!!) } }
-            )
-    }
-
     suspend fun sendNotificationThatPriceReachedSubscription(
         ticker: String,
         priceFrom: Long,
         priceTo: Long
     ) {
-        println("priceFrom: $priceFrom")
-        println("priceTo: $priceTo")
+        println("$ticker priceFrom: $priceFrom")
+        println("$ticker priceTo: $priceTo")
 
         val query = if (priceFrom > priceTo) {
             Query(Criteria.where("subscriptions.price.value").lt(priceFrom).gt(priceTo))

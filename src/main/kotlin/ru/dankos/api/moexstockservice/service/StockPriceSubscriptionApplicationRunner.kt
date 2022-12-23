@@ -6,10 +6,9 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Service
 
 @Service
-class AppStartupRunner(
+class StockPriceSubscriptionApplicationRunner(
     private val stocksService: StocksService
 ) : ApplicationRunner {
-
 
     override fun run(args: ApplicationArguments?): Unit = runBlocking {
         stocksService.pushNotificationWhenPriceIsEqualToSubscription()

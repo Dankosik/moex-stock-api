@@ -3,6 +3,7 @@ package ru.dankos.api.moexstockservice.service
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
+import reactor.util.retry.Retry
 import ru.dankos.api.moexstockservice.client.MoexStockClient
 import ru.dankos.api.moexstockservice.client.MoexTickersClient
 import ru.dankos.api.moexstockservice.controller.dto.AllTickersResponse
@@ -14,6 +15,7 @@ import ru.dankos.api.moexstockservice.exception.StockNotFoundException
 import ru.dankos.api.moexstockservice.model.MoexMarketInfo
 import ru.dankos.api.moexstockservice.model.MoexStockBaseInfo
 import ru.dankos.api.moexstockservice.model.MoexStockClosedPrice
+import java.time.Duration
 
 @Service
 class CacheableMoexService(
@@ -47,5 +49,7 @@ class CacheableMoexService(
 
     @Cacheable(value = ["tickers"])
     suspend fun getAllAvailableTickers(): AllTickersResponse =
-        moexTickersClient.getAllAvailableTickers().awaitSingle().toAllTickersResponse()
+        moexTickersClient.getAllAvailableTickers()
+            .retryWhen(Retry.backoff(20, Duration.ofSeconds(2)).filter { it is Exception })
+            .awaitSingle().toAllTickersResponse()
 }
