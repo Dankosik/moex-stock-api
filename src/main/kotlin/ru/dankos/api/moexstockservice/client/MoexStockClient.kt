@@ -1,25 +1,21 @@
 package ru.dankos.api.moexstockservice.client
 
-import org.springframework.cloud.openfeign.CollectionFormat
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import reactivefeign.spring.config.ReactiveFeignClient
+import org.springframework.web.service.annotation.GetExchange
+import org.springframework.web.service.annotation.HttpExchange
 import reactor.core.publisher.Mono
 import ru.dankos.api.moexstockservice.client.dto.MoexMarketDataStockResponse
 import ru.dankos.api.moexstockservice.client.dto.MoexSecuritiesStockResponse
 
-@ReactiveFeignClient(name = "moexstocks", url = "\${feign-services.moex-stocks-endpoint}")
+@HttpExchange
 interface MoexStockClient {
 
-    @CollectionFormat(feign.CollectionFormat.CSV)
-    @GetMapping("/{ticker}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,TIME,OPEN,LOW,HIGH,ISSUECAPITALIZATION")
+    @GetExchange("/{ticker}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=SECID,LAST,TIME,OPEN,LOW,HIGH,ISSUECAPITALIZATION")
     fun getStockByTicker(@PathVariable("ticker") ticker: String): Mono<MoexMarketDataStockResponse>
 
-    @CollectionFormat(feign.CollectionFormat.CSV)
-    @GetMapping("/{ticker}.json?iss.only=securities&securities.columns=SECID,PREVPRICE,SHORTNAME,SECNAME")
+    @GetExchange("/{ticker}.json?iss.only=securities&securities.columns=SECID,PREVPRICE,SHORTNAME,SECNAME")
     fun getClosedStockPriceByTicker(@PathVariable("ticker") ticker: String): Mono<MoexSecuritiesStockResponse>
 
-    @CollectionFormat(feign.CollectionFormat.CSV)
-    @GetMapping("/{ticker}.json?iss.only=securities&securities.columns=SECID,SECNAME")
+    @GetExchange("/{ticker}.json?iss.only=securities&securities.columns=SECID,SECNAME")
     fun getStockBaseInfo(@PathVariable("ticker") ticker: String): Mono<MoexSecuritiesStockResponse>
 }
